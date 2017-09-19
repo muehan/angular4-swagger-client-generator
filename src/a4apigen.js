@@ -11,15 +11,19 @@ var optimist = require('optimist')
     .alias('s', 'source')
     .alias('u', 'url')
     .alias('o', 'outputpath')
+    .alias('a', 'authentication')
     .describe('s', 'Path to the swagger.json file')
     .describe('u', 'URL of the swagger.json file')
-    .describe('o', 'Path where to store the generated files');
+    .describe('o', 'Path where to store the generated files')
+    .describe('a', 'If your API uses windows Authentication');
 
 var fs = require('fs');
 
 var genRef = require('./generator');
 
 var argv = optimist.argv;
+
+var usesWindowsAuthentication;
 
 function stderr(err) {
     console.log('Error: ' + err);
@@ -29,6 +33,12 @@ function stderr(err) {
 if (argv.help) {
     optimist.showHelp();
     process.exit(0);
+}
+
+console.log(argv.authentication);
+if(argv.authentication){
+    console.log('windows authentication enabled');
+    usesWindowsAuthentication = true;
 }
 
 var fromSource = false;
@@ -67,11 +77,11 @@ if (fromUrl) {
         fs.writeFileSync(dest, body, 'utf-8');
         var g = new genRef.Generator(dest, outputdir);
         g.Debug = true;
-        g.generateAPIClient();
+        g.generateAPIClient(usesWindowsAuthentication);
     });
 }
 else {
     var g = new genRef.Generator(sourceFile, outputdir);
     g.Debug = true;
-    g.generateAPIClient();
+    g.generateAPIClient(usesWindowsAuthentication);
 }

@@ -13,11 +13,14 @@ var Generator = (function () {
 
     Generator.prototype.Debug = false;
 
+    var winAuth = false;
+
     Generator.prototype.initialize = function () {
         this.LogMessage('Reading Swagger file', this._swaggerfile);
         var swaggerfilecontent = fs.readFileSync(this._swaggerfile, 'UTF-8');
 
         this.LogMessage('Parsing Swagger JSON');
+        
         this.swaggerParsed = JSON.parse(swaggerfilecontent);
 
         this.LogMessage('Reading Mustache templates');
@@ -30,15 +33,20 @@ var Generator = (function () {
 
         this.LogMessage('Creating Mustache viewModel');
         this.viewModel = this.createMustacheViewModel();
+        console.log(this.winAuth);
+        this.viewModel.auth = this.winAuth ? ' withCredentials: true,' : '',
 
         this.initialized = true;
     };
 
-    Generator.prototype.generateAPIClient = function () {
+    Generator.prototype.generateAPIClient = function (usesWindowsAuthentication) {
+        this.winAuth = usesWindowsAuthentication;
+        
         if (this.initialized !== true) {
             this.initialize();
         }
 
+        console.log('winlogon: ' + usesWindowsAuthentication);
         this.generateClient();
         this.generateModels();
         this.generateCommonModelsExportDefinition();
@@ -122,7 +130,7 @@ var Generator = (function () {
             domain: (swagger.schemes && swagger.schemes.length > 0 ? swagger.schemes[0] : 'http') + '://' + 
                 (swagger.host ? swagger.host : 'localhost') + ('/' === swagger.basePath ? '' : swagger.basePath),
             methods: [],
-            definitions: []
+            definitions: [],
         };
 
         _.forEach(swagger.paths, function (api, path) {

@@ -83,13 +83,13 @@ export class ApiClientService {
 {{/methods}}
   private sendRequest<T>(method: string, uri: string, headers: HttpHeaders, params: HttpParams, body: any): Observable<T> {
     if (method === 'get') {
-      return this.http.get<T>(this.domain + uri, { headers: headers, params: params });
+      return this.http.get<T>(this.domain + uri, { headers: headers,{{&auth}} params: params });
     } else if (method === 'put') {
-      return this.http.put<T>(this.domain + uri, body, { headers: headers, params: params });
+      return this.http.put<T>(this.domain + uri, body, { headers: headers,{{auth}} params: params });
     } else if (method === 'post') {
-      return this.http.post<T>(this.domain + uri, body, { headers: headers, params: params });
+      return this.http.post<T>(this.domain + uri, body, { headers: headers,{{auth}} params: params });
     } else if (method === 'delete') {
-      return this.http.delete<T>(this.domain + uri, { headers: headers, params: params });
+      return this.http.delete<T>(this.domain + uri, { headers: headers,{{auth}} params: params });
     } else {
       console.error('Unsupported request: ' + method);
       return Observable.throw('Unsupported request: ' + method);
